@@ -1,43 +1,109 @@
 public class BinaryTree {
-  private Node<Integer> root = new Node<>();
-  private int size;
-  private int rootHeight = 0;
+  private Node root;
 
   public BinaryTree() {
-    this.size = 0;
+    root = null;
   }
 
-  public boolean isEmpty() {
-    return size == 0;
+  // Metodos privados da árvore que usam recursão para percorrê-la
+
+  private Node add(Node node, int data) {
+    if (node == null) {
+      return new Node(data);
+    }
+
+    if (data > node.data) {
+      node.right = add(node.right, data);
+    } else {
+      node.left = add(node.left, data);
+    }
+
+    return node;
   }
 
-  private void insert(Node<Integer> node, int data, int deep/* , int height */) {
-    try {
-      int currentData = node.getData();
+  private boolean search(Node node, int data) {
+    if (node == null) {
+      return false;
+    }
+    
+    if (data > node.data) {
+      return search(node.right, data);
+    } else if (data < node.data) {
+      return search(node.left, data);
+    } else
+      return true;
+  }
 
-      if (data < currentData)
-        insert(node.getLeft(), data, deep + 1/* , height - 1 */);
-      else
-        insert(node.getRight(), data, deep + 1/* , height - 1 */);
+  private int minValue(Node node) {
+    int minValue = node.data;
 
-      // node.setHeight(node.getHeight() + 1);
-        
-    } catch (Exception e) {
-      node.setData(data);
-      node.setDeep(deep);
+    while (node.left != null) {
+      minValue = node.left.data;
+      node = node.left;
+    }
 
-      // if (deep > rootHeight)
-      //   rootHeight = deep;
+    return minValue;
+  }
 
-      // if (height <= 0) {
-      //   node.setHeight(0);
-      // }
+  private Node remove(Node node, int data) {
+    if (node == null) {
+      return node;
+    }
 
-      size++;
-    }  
+    if (data > node.data)
+      node.right = remove(node.right, data);
+    else if (data < node.data)
+      node.left = remove(node.left, data);
+    else {
+      if (node.left == null)
+        return node.right;
+      else if (node.right == null)
+        return node.left;
+
+      int minValue = minValue(node.right);
+      node.data = minValue;
+      node.right = remove(node.right, minValue);
+    }
+
+    return node;
   }
   
+  private void print(Node node, int space) {
+    if (node == null) {
+      return;
+    }
+
+    // Aumenta o espaço entre os níveis
+    space += 5;
+
+    // Imprime o nó da direita primeiro
+    print(node.right, space);
+
+    // Imprime o nó atual com espaço
+    for (int i = 5; i < space; i++) {
+      System.out.print(" ");
+    }
+    System.out.println(node.data);
+
+    // Imprime o nó da esquerda
+    print(node.left, space);
+  }
+
+  // Metodos públicos para chamar os métodos privados da árvore
+
   public void add(int data) {
-    insert(root, data, 0/* , rootHeight */);
+    root = add(root, data);
+  }
+
+  public boolean search(int data) {
+    return search(root, data);
+  }
+
+  public void remove(int data) {
+    root = remove(root, data);
+  }
+
+  public void print() {
+    print(root, 0);
   }
 }
